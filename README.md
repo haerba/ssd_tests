@@ -1,4 +1,4 @@
-# tensorrt_demos
+# ssd_tests
 
 Examples demonstrating how to optimize caffe/tensorflow/darknet models with TensorRT and run inferencing on NVIDIA Jetson or x86_64 PC platforms.  Highlights:  (The following FPS numbers have been updated using test results against JetPack 4.3, i.e. TensorRT 6, on Jetson Nano.)
 
@@ -13,10 +13,8 @@ Table of contents
 -----------------
 
 * [Prerequisite](#prerequisite)
-* [Demo #1: GoogLeNet](#googlenet)
-* [Demo #2: MTCNN](#mtcnn)
 * [Demo #3: SSD](#ssd)
-* [Demo #4: YOLOv3](#yolov3)
+
 
 <a name="prerequisite"></a>
 Prerequisite
@@ -39,97 +37,7 @@ Furthermore, the demo programs require 'cv2' (OpenCV) module in python3.  You co
 
 Lastly, if you plan to run Demo #3 (SSD), you'd also need to have 'tensorflowi-1.x' installed.  You could refer to [Building TensorFlow 1.12.2 on Jetson Nano](https://jkjung-avt.github.io/build-tensorflow-1.12.2/) for how to install tensorflow-1.12.2 on the Jetson system.
 
-<a name="googlenet"></a>
-Demo #1: GoogLeNet
-------------------
 
-This demo illustrates how to convert a prototxt file and a caffemodel file into a tensorrt engine file, and to classify images with the optimized tensorrt engine.
-
-Step-by-step:
-
-1. Clone this repository.
-
-   ```shell
-   $ cd ${HOME}/project
-   $ git clone https://github.com/jkjung-avt/tensorrt_demos
-   $ cd tensorrt_demos
-   ```
-
-2. Build the TensorRT engine from the trained googlenet (ILSVRC2012) model.  Note that I downloaded the trained model files from [BVLC caffe](https://github.com/BVLC/caffe/tree/master/models/bvlc_googlenet) and have put a copy of all necessary files in this repository.
-
-   ```shell
-   $ cd ${HOME}/project/tensorrt_demos/googlenet
-   $ make
-   $ ./create_engine
-   ```
-
-3. Build the Cython code. Install Cython if not previously installed.
-
-   ```shell
-   $ pip3 install Cython 
-   $ cd ${HOME}/project/tensorrt_demos
-   $ make
-   ```
-
-4. Run the 'trt_googlenet.py' demo program.  For example, run the demo with a USB webcam as the input.
-
-   ```shell
-   $ cd ${HOME}/project/tensorrt_demos
-   $ python3 trt_googlenet.py --usb --vid 0 --width 1280 --height 720
-   ```
-
-   Here's a screenshot of the demo (JetPack-4.2.2, i.e. TensorRT 5).
-
-   ![A Picture of a Golden Retriever](https://raw.githubusercontent.com/jkjung-avt/tensorrt_demos/master/doc/golden_retriever.png)
-
-5. The demo program supports a number of different image inputs.  You could do `python3 trt_googlenet.py --help` to read the help messages.  Or more specifically, the following inputs could be specified:
-
-   * `--file --filename test_video.mp4`: a video file, e.g. mp4 or ts.
-   * `--image --filename test_image.jpg`: an image file, e.g. jpg or png.
-   * `--usb --vid 0`: USB webcam (/dev/video0).
-   * `--rtsp --uri rtsp://admin:123456@192.168.1.1/live.sdp`: RTSP source, e.g. an IP cam.
-
-6. Check out my blog post for implementation details:
-
-   * [Running TensorRT Optimized GoogLeNet on Jetson Nano](https://jkjung-avt.github.io/tensorrt-googlenet/)
-
-<a name="mtcnn"></a>
-Demo #2: MTCNN
---------------
-
-This demo builds upon the previous example.  It converts 3 sets of prototxt and caffemodel files into 3 tensorrt engines, namely the PNet, RNet and ONet.  Then it combines the 3 engine files to implement MTCNN, a very good face detector.
-
-Assuming this repository has been cloned at '${HOME}/project/tensorrt_demos', follow these steps:
-
-1. Build the TensorRT engines from the trained MTCNN model.  (Refer to [mtcnn/README.md](https://github.com/jkjung-avt/tensorrt_demos/blob/master/mtcnn/README.md) for more information about the prototxt and caffemodel files.)
-
-   ```shell
-   $ cd ${HOME}/project/tensorrt_demos/mtcnn
-   $ make
-   $ ./create_engines
-   ```
-
-2. Build the Cython code if it has not been done yet.  Refer to step 3 in Demo #1.
-
-3. Run the 'trt_mtcnn.py' demo program.  For example, I just grabbed from the internet a poster of The Avengers for testing.
-
-   ```shell
-   $ cd ${HOME}/project/tensorrt_demos
-   $ python3 trt_mtcnn.py --image --filename ${HOME}/Pictures/avengers.jpg
-   ```
-
-   Here's the result (JetPack-4.2.2, i.e. TensorRT 5).
-
-   ![Avengers faces detected](https://raw.githubusercontent.com/jkjung-avt/tensorrt_demos/master/doc/avengers.png)
-
-4. The 'trt_mtcnn.py' demo program could also take various image inputs.  Refer to step 5 in Demo #1 for details.
-
-5. Check out my related blog posts:
-
-   * [TensorRT MTCNN Face Detector](https://jkjung-avt.github.io/tensorrt-mtcnn/)
-   * [Optimizing TensorRT MTCNN](https://jkjung-avt.github.io/optimize-mtcnn/)
-
-<a name="ssd"></a>
 Demo #3: SSD
 ------------
 
@@ -209,79 +117,3 @@ Assuming this repository has been cloned at '${HOME}/project/tensorrt_demos', fo
    * [Verifying mAP of TensorRT Optimized SSD and YOLOv3 Models](https://jkjung-avt.github.io/trt-detection-map/)
    * Or if you'd like to learn how to train your own custom object detectors which could be easily converted to TensorRT engines and inferenced with 'trt_ssd.py' and 'trt_ssd_async.py': [Training a Hand Detector with TensorFlow Object Detection API](https://jkjung-avt.github.io/hand-detection-tutorial/)
 
-<a name="YOLOv3"></a>
-Demo #4: YOLOv3
----------------
-
-Along the same line as Demo #3, this demo showcases how to convert a trained YOLOv3 model through ONNX to a TensorRT engine.  This demo also requires TensorRT 'Python API' and has been verified working against both TensorRT 5.x and 6.x.
-
-Assuming this repository has been cloned at '${HOME}/project/tensorrt_demos', follow these steps:
-
-1. Install 'pycuda' in case you have not done so in Demo #3.  Note that installation script resides in the 'ssd' folder.
-
-   ```shell
-   $ cd ${HOME}/project/tensorrt_demos/ssd
-   $ ./install_pycuda.sh
-   ```
-
-2. Install version '1.4.1' (not the latest) of python3 'onnx' module.  Reference: [information provided by NVIDIA](https://devtalk.nvidia.com/default/topic/1052153/jetson-nano/tensorrt-backend-for-onnx-on-jetson-nano/post/5347666/#5347666).
-
-   ```shell
-   $ sudo pip3 install onnx==1.4.1
-   ```
-
-3. Download the trained YOLOv3 COCO models and convert the targeted model to ONNX and then to TensorRT engine.  This demo supports 5 models: 'yolov3-tiny-288', 'yolov3-tiny-416',  'yolov3-288', 'yolov3-416', and 'yolov3-608'.  **NOTE: I'm not sure whether my implementation of the 'yolov3-tiny-288' and 'yolov3-tiny-416' models is correct.  They are for reference only.**
-
-   I use 'yolov3-416' as example below.
-
-   ```shell
-   $ cd ${HOME}/project/tensorrt_demos/yolov3_onnx
-   $ ./download_yolov3.sh
-   $ python3 yolov3_to_onnx.py --model yolov3-416
-   $ python3 onnx_to_tensorrt.py --model yolov3-416
-   ```
-
-   The last step ('onnx_to_tensorrt.py') takes a little bit more than half au hour to complete on my Jetson Nano DevKit.  When that is done, the optimized TensorRT engine would be saved as 'yolov3-416.trt'.
-
-4. Test the YOLOv3 TensorRT engine with the 'dog.jpg' image.
-
-   ```shell
-   $ wget https://raw.githubusercontent.com/pjreddie/darknet/master/data/dog.jpg -O ${HOME}/Pictures/dog.jpg
-   $ python3 trt_yolov3.py --model yolov3-416
-                           --image --filename ${HOME}/Pictures/dog.jpg
-   ```
-
-   This was tested against JetPack-4.3, i.e. TensorRT 6.
-
-   ![YOLOv3-416 detection result on dog.jpg](https://raw.githubusercontent.com/jkjung-avt/tensorrt_demos/master/doc/dog_trt_yolov3.png)
-
-5. The 'trt_yolov3.py' demo program could also take various image inputs.  Refer to step 5 in Demo #1 again.
-
-6. I created 'eval_yolov3.py' for evaluating mAP of the optimized YOLOv3 engine.  It works the same way as 'eval_ssd.py'.  Refer to step #5 in Demo #3.
-
-   ```shell
-   $ python3 eval_yolov3.py --model yolov3-288
-   $ python3 eval_yolov3.py --model yolov3-416
-   $ python3 eval_yolov3.py --model yolov3-608
-   ```
-
-   I evaluated all of yolov3-tiny-288, yolov3-tiny-416, yolov3-288, yolov3-416 and yolov3-608 TensorRT engines with COCO 'val2017' data and got the following results.  The FPS (frames per second) numbers were measured using 'trt_yolov3.py' on my Jetson Nano DevKit with JetPack-4.3.
-
-   | TensorRT engine        | mAP @<br>IoU=0.5:0.95 |  mAP @<br>IoU=0.5  | FPS on Nano |
-   |:-----------------------|:---------------------:|:------------------:|:-----------:|
-   | yolov3-tiny-288 (FP16) |          0.077        |        0.158       |     20.9    |
-   | yolov3-tiny-416 (FP16) |          0.096        |        0.202       |     14.2    |
-   | yolov3-288 (FP16)      |          0.331        |        0.600       |     5.42    |
-   | yolov3-416 (FP16)      |          0.373        |        0.664       |     3.07    |
-   | yolov3-608 (FP16)      |          0.376        |        0.665       |     1.53    |
-   | yolov3-608 (FP32)      |          0.376        |        0.665       |      --     |
-
-7. Check out my blog post for implementation details:
-
-   * [TensorRT ONNX YOLOv3](https://jkjung-avt.github.io/tensorrt-yolov3/)
-   * [Verifying mAP of TensorRT Optimized SSD and YOLOv3 Models](https://jkjung-avt.github.io/trt-detection-map/)
-
-Licenses
---------
-
-I referenced source code of [NVIDIA/TensorRT](https://github.com/NVIDIA/TensorRT) samples to develop most of the demos in this repository.  Those NVIDIA samples are under [Apache License 2.0](https://github.com/NVIDIA/TensorRT/blob/master/LICENSE).
